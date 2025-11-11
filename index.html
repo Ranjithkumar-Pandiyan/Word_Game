@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Find the Missing Letters</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <h1 class="app__title">Find the Missing Letters</h1>
+        <div class="controls">
+          <label class="control">
+            Difficulty
+            <select id="difficulty" aria-label="Select difficulty">
+              <option value="easy">Easy</option>
+              <option value="medium" selected>Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </label>
+          <button id="new-round" class="btn" aria-label="Start new round">New Round</button>
+          <button id="reset-game" class="btn btn--secondary" aria-label="Reset game">Reset</button>
+        </div>
+      </header>
+
+      <section class="status" aria-live="polite" aria-atomic="true">
+        <div class="status__item"><strong>Score:</strong> <span id="score">0</span></div>
+        <div class="status__item"><strong>Streak:</strong> <span id="streak">0</span></div>
+        <div class="status__item"><strong>Lives:</strong> <span id="lives">5</span></div>
+        <div class="status__item"><strong>Round:</strong> <span id="round">1</span></div>
+      </section>
+
+      <section class="puzzle" aria-labelledby="puzzle-label">
+        <h2 id="puzzle-label" class="sr-only">Current word</h2>
+        <div id="word" class="word" role="group" aria-label="Word with missing letters"></div>
+        <div id="feedback" class="feedback" aria-live="polite"></div>
+      </section>
+
+      <section class="keyboard" aria-labelledby="keyboard-label">
+        <h2 id="keyboard-label" class="sr-only">Letter choices</h2>
+        <div id="keys" class="keys" role="group" aria-label="Choose a letter"></div>
+      </section>
+
+      <footer class="app__footer">
+        <p>Tip: Use your keyboard to guess letters. Press Enter to start a new round.</p>
+      </footer>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+  </html>
+
+
