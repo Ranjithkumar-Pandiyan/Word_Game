@@ -70,18 +70,67 @@
   };
 
   function setFeedback(text, tone = "neutral") {
+    // Reset animation
+    els.feedback.style.animation = "none";
+    // Force reflow to restart animation
+    void els.feedback.offsetWidth;
+    
     els.feedback.textContent = text;
     els.feedback.classList.remove("feedback--good", "feedback--bad", "feedback--warn");
     if (tone === "good") els.feedback.classList.add("feedback--good");
     if (tone === "bad") els.feedback.classList.add("feedback--bad");
     if (tone === "warn") els.feedback.classList.add("feedback--warn");
+    
+    // Re-enable animation
+    els.feedback.style.animation = "slideIn 0.3s ease-out";
   }
 
   function updateStatus() {
-    els.score.textContent = String(state.score);
-    els.streak.textContent = String(state.streak);
-    els.lives.textContent = String(state.lives);
-    els.round.textContent = String(state.round);
+    // Animate number changes
+    const animateValue = (element, newValue, oldValue) => {
+      if (newValue === oldValue) return;
+      element.style.transform = "scale(1.2)";
+      element.style.transition = "transform 0.2s ease";
+      setTimeout(() => {
+        element.textContent = String(newValue);
+        element.style.transform = "scale(1)";
+      }, 100);
+    };
+
+    const oldScore = parseInt(els.score.textContent) || 0;
+    const oldStreak = parseInt(els.streak.textContent) || 0;
+    const oldLives = parseInt(els.lives.textContent) || 0;
+    const oldRound = parseInt(els.round.textContent) || 0;
+
+    if (state.score !== oldScore) {
+      animateValue(els.score, state.score, oldScore);
+    } else {
+      els.score.textContent = String(state.score);
+    }
+
+    if (state.streak !== oldStreak) {
+      animateValue(els.streak, state.streak, oldStreak);
+    } else {
+      els.streak.textContent = String(state.streak);
+    }
+
+    if (state.lives !== oldLives) {
+      animateValue(els.lives, state.lives, oldLives);
+      // Add warning color when lives are low
+      if (state.lives <= 2) {
+        els.lives.parentElement.style.borderColor = "rgba(248, 113, 113, 0.4)";
+      } else {
+        els.lives.parentElement.style.borderColor = "";
+      }
+    } else {
+      els.lives.textContent = String(state.lives);
+    }
+
+    if (state.round !== oldRound) {
+      animateValue(els.round, state.round, oldRound);
+    } else {
+      els.round.textContent = String(state.round);
+    }
   }
 
   function chooseWord() {
@@ -140,12 +189,17 @@
       const isLetter = /[a-z]/.test(ch);
       const isMissing = state.missingIndices.has(i);
       const shown = isLetter && (!isMissing || state.revealedChars.has(i)) ? ch : "";
+      const wasJustRevealed = isMissing && state.revealedChars.has(i);
 
       const el = document.createElement("div");
       el.className = "char";
       if (!isLetter && ch === " ") el.classList.add("char--space");
       if (isMissing && !state.revealedChars.has(i)) el.classList.add("char--missing");
-      if (isMissing && state.revealedChars.has(i)) el.classList.add("char--filled");
+      if (wasJustRevealed) {
+        el.classList.add("char--filled");
+        // Add a slight delay for staggered animation
+        el.style.animationDelay = `${i * 0.05}s`;
+      }
       el.setAttribute("aria-label", isLetter ? (shown ? ch : "missing letter") : "space");
       el.textContent = isLetter ? shown : (ch === " " ? "" : ch);
       els.word.appendChild(el);
@@ -171,7 +225,22 @@
     const btn = buttons.find((b) => b.textContent === letter);
     if (!btn) return;
     btn.disabled = true;
-    btn.classList.add(isHit ? "key--good" : "key--bad");
+    
+    // Add visual feedback with animation
+    if (isHit) {
+      btn.classList.add("key--good");
+      // Add a subtle bounce effect
+      setTimeout(() => {
+        btn.style.transform = "scale(1.05)";
+        setTimeout(() => {
+          btn.style.transform = "";
+        }, 150);
+      }, 50);
+    } else {
+      btn.classList.add("key--bad");
+      // Add shake effect
+      btn.style.animation = "keyShake 0.4s cubic-bezier(0.4, 0, 0.2, 1)";
+    }
   }
 
   function handleGuess(letter) {
